@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { Mail, User, Lock, ArrowRight } from "lucide-react";
+import "./SignupForm.css";
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
@@ -10,8 +12,10 @@ const SignupForm = () => {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -20,108 +24,109 @@ const SignupForm = () => {
       return;
     }
 
-    console.log("Form submitted:", formData);
-    // Here you can add your signup logic, like sending data to an API
-  };
+    setLoading(true);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    try {
+      const response = await fetch("http://localhost:5000/send-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          username: formData.username,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message); // Display error if username/email already exists
+      }
+
+      navigate("/verify", { state: { email: formData.email } });
+    } catch (error) {
+      setError(error.message || "Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
-          <p className="mt-2 text-gray-600">Sign up to get started</p>
-        </div>
+    <div className="signup-container">
+      <div className="signup-box">
+        <h1 className="signup-title">Create Account</h1>
+        <p className="signup-subtitle">Sign up to get started</p>
 
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+        {error && <p className="error-message">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email Input */}
-          <div className="space-y-1">
-            <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+        <form onSubmit={handleSubmit} className="signup-form">
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <div className="input-container">
+              <Mail className="input-icon" />
               <input
                 type="email"
                 id="email"
-                name="email"
                 value={formData.email}
-                onChange={handleChange}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter your email"
               />
             </div>
           </div>
 
-          {/* Username Input */}
-          <div className="space-y-1">
-            <label htmlFor="username" className="text-sm font-medium text-gray-700">Username</label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <div className="input-group">
+            <label htmlFor="username">Username</label>
+            <div className="input-container">
+              <User className="input-icon" />
               <input
                 type="text"
                 id="username"
-                name="username"
                 value={formData.username}
-                onChange={handleChange}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 required
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter your username"
               />
             </div>
           </div>
 
-          {/* Password Input */}
-          <div className="space-y-1">
-            <label htmlFor="password" className="text-sm font-medium text-gray-700">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <div className="input-group">
+            <label htmlFor="password">Password</label>
+            <div className="input-container">
+              <Lock className="input-icon" />
               <input
                 type="password"
                 id="password"
-                name="password"
                 value={formData.password}
-                onChange={handleChange}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter your password"
               />
             </div>
           </div>
 
-          {/* Confirm Password Input */}
-          <div className="space-y-1">
-            <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">Confirm Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <div className="input-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className="input-container">
+              <Lock className="input-icon" />
               <input
                 type="password"
                 id="confirmPassword"
-                name="confirmPassword"
                 value={formData.confirmPassword}
-                onChange={handleChange}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Confirm your password"
               />
             </div>
           </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-indigo-700 transition"
-          >
-            Sign Up
-            <ArrowRight className="h-5 w-5" />
+          <button type="submit" className="signup-button" disabled={loading}>
+            {loading ? "Sending Code..." : "Sign Up"} <ArrowRight className="arrow-icon" />
           </button>
+
+          <p className="already-have-account">
+            Already have an account? <Link to="/LoginPage" className="login-link">Login here</Link>
+          </p>
         </form>
       </div>
     </div>

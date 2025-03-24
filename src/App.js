@@ -1,16 +1,19 @@
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import SignupPage from "./pages/SignupPage";
-import VerifyPage from "./pages/VerifyPage";
+import SignupForm from "./components/SignupForm";
+import VerificationPage from "./pages/VerificationPage"; // Import VerificationPage
+import LoginPage from "./pages/LoginPage"; // Import LoginPage component
 
-function App() {
-    return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<SignupPage />} />
-                <Route path="/verify" element={<VerifyPage />} />
-            </Routes>
-        </Router>
-    );
-}
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<SignupForm />} />
+        <Route path="/verify" element={<VerificationPage />} />
+        <Route path="/LoginPage" element={<LoginPage />} />  {/* Add LoginPage Route */}
+      </Routes>
+    </Router>
+  );
+};
 
 export default App;
